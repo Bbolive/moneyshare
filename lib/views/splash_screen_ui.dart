@@ -17,13 +17,14 @@ class _SplashScreenUiState extends State<SplashScreenUi> {
       () => Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => MoneyInputUi(),
+          builder: (context) => MoneyInputUI(),
         ),
       ),
     );
- 
+
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

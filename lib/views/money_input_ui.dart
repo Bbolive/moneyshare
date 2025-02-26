@@ -1,49 +1,88 @@
+// ignore_for_file: sort_child_properties_last, prefer_is_empty
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:iot_thai_moneyshare_project/views/money_result_ui.dart';
 
-class MoneyInputUi extends StatefulWidget {
-  const MoneyInputUi({super.key});
+class MoneyInputUI extends StatefulWidget {
+  const MoneyInputUI({super.key});
 
   @override
-  State<MoneyInputUi> createState() => _MoneyInputUiState();
+  State<MoneyInputUI> createState() => _MoneyInputUIState();
 }
 
-class _MoneyInputUiState extends State<MoneyInputUi> {
-  //ตัวแปรใช้กับ checkbok 
+class _MoneyInputUIState extends State<MoneyInputUI> {
+  //ตัวแปรใช้กับ Checkbox
   bool isTip = false;
+
+  //ตัวควบคุม TextField
+  TextEditingController moneyCtrl = TextEditingController();
+  TextEditingController personCtrl = TextEditingController();
+  TextEditingController tipCtrl = TextEditingController();
+
+  //เมธอดแสดงข้อความเตือน
+  showWarningMSG(context, msg) async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'คำเตือน',
+          ),
+          content: Text(
+            msg,
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'ตกลง',
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 242, 197, 249),
       appBar: AppBar(
         backgroundColor: Colors.purple,
-        title : Text(
+        title: Text(
           'แชร์เงินกันเถอะ',
           style: TextStyle(
             color: Colors.white,
-            ),    
           ),
-          centerTitle: true,
-        ), 
-        body: SingleChildScrollView(
-          child: Padding(
-            padding : EdgeInsets.only(
-              left: 45.0,
-              right: 45.0,
-            ),
-          child: Column(
+        ),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 45.0,
+            right: 45.0,
+          ),
+          child: Center(
+            child: Column(
               children: [
                 SizedBox(
                   height: 50.0,
                 ),
                 Image.asset(
-                'assets/images/money.png',
-                width: MediaQuery.of(context).size.width * 0.35,
+                  'assets/images/money.png',
+                  width: MediaQuery.of(context).size.width * 0.35,
                 ),
                 SizedBox(
                   height: 35.0,
                 ),
                 TextField(
+                  controller: moneyCtrl,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     focusedBorder: UnderlineInputBorder(
@@ -52,7 +91,7 @@ class _MoneyInputUiState extends State<MoneyInputUi> {
                       ),
                     ),
                     enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
+                      borderSide: BorderSide(
                         color: Colors.purple,
                       ),
                     ),
@@ -70,6 +109,7 @@ class _MoneyInputUiState extends State<MoneyInputUi> {
                   height: 35.0,
                 ),
                 TextField(
+                  controller: personCtrl,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     focusedBorder: UnderlineInputBorder(
@@ -78,7 +118,7 @@ class _MoneyInputUiState extends State<MoneyInputUi> {
                       ),
                     ),
                     enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
+                      borderSide: BorderSide(
                         color: Colors.purple,
                       ),
                     ),
@@ -93,34 +133,39 @@ class _MoneyInputUiState extends State<MoneyInputUi> {
                   ),
                 ),
                 SizedBox(
-                  height: 50.0,
+                  height: 35.0,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Checkbox(
                       onChanged: (paramValue) {
+                        //จำไว้นะ โค้ดใดที่มีผลต่อการแสดงผล
+                        //ต้องเขียนอยู่ภายใต้ setState()
                         setState(() {
                           isTip = paramValue!;
+                          if (isTip == false) {
+                            tipCtrl.text = '';
+                          }
                         });
                       },
                       value: isTip,
                       activeColor: Colors.purple,
                       checkColor: Colors.white,
-                      focusColor: Colors.purple,
                       side: BorderSide(
                         color: Colors.purple,
                       ),
                     ),
                     Text(
-                      'ให้ทิปพนักงานเสริฟ์',
-                    )
+                      'ทิปให้พนักงานเสริฟ',
+                    ),
                   ],
                 ),
                 SizedBox(
                   height: 22.0,
                 ),
                 TextField(
+                  controller: tipCtrl,
                   enabled: isTip,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
@@ -130,7 +175,7 @@ class _MoneyInputUiState extends State<MoneyInputUi> {
                       ),
                     ),
                     enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
+                      borderSide: BorderSide(
                         color: Colors.purple,
                       ),
                     ),
@@ -148,23 +193,55 @@ class _MoneyInputUiState extends State<MoneyInputUi> {
                   height: 35.0,
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    //Validate UI
+                    if (moneyCtrl.text.length == 0) {
+                      //แจ้งเตือน ป้อนเงินด้วย
+                      showWarningMSG(context, 'ป้อนเงินด้วย !!!!');
+                    } else if (personCtrl.text.length == 0) {
+                      //แจ้งเตือน ป้อนคนด้วย
+                      showWarningMSG(context, 'ป้อนคนด้วย !!!!');
+                    } else if (isTip == true && tipCtrl.text.length == 0) {
+                      //แจ้งเตือน ป้อนทิป
+                      showWarningMSG(context, 'ป้อนทิปด้วย !!!!');
+                    } else {
+                      //คำนวณแล้วส่งไปแสดงผลที่หน้า MoneyResultUI()
+                      double money = double.parse(moneyCtrl.text);
+                      int person = int.parse(personCtrl.text);
+                      double tip =
+                          isTip == true ? double.parse(tipCtrl.text) : 0;
+                      double moneyShare = (money + tip) / person;
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MoneyResultUi(
+                            money: money,
+                            person: person,
+                            tip: tip,
+                            moneyshare: moneyShare,
+                          ),
+                        ),
+                      );
+                    }
+                  },
                   child: Text(
-                    'คำนวณ',   
+                    'คำนวณ',
                     style: TextStyle(
-                      color: Colors.white
-                    ),         
+                      color: Colors.white,
+                    ),
                   ),
                   style: ElevatedButton.styleFrom(
-                     backgroundColor : Colors.purple,
-                     fixedSize: Size(
-                      MediaQuery.of(context).size.width ,50.0,
-                     ),
-                     shape: RoundedRectangleBorder(
+                    backgroundColor: Colors.purple,
+                    fixedSize: Size(
+                      MediaQuery.of(context).size.width,
+                      50.0,
+                    ),
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
                         8.0,
                       ),
-                     ),
+                    ),
                   ),
                 ),
                 SizedBox(
@@ -179,19 +256,20 @@ class _MoneyInputUiState extends State<MoneyInputUi> {
                   label: Text(
                     'ยกเลิก',
                     style: TextStyle(
-                      color: Colors.white
+                      color: Colors.white,
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                     backgroundColor : Colors.red,
-                     fixedSize: Size(
-                      MediaQuery.of(context).size.width ,50.0,
-                     ),
-                     shape: RoundedRectangleBorder(
+                    backgroundColor: Colors.red,
+                    fixedSize: Size(
+                      MediaQuery.of(context).size.width,
+                      50.0,
+                    ),
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
                         8.0,
                       ),
-                     ),
+                    ),
                   ),
                 ),
                 SizedBox(
@@ -203,10 +281,14 @@ class _MoneyInputUiState extends State<MoneyInputUi> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                SizedBox(
+                  height: 40.0,
+                ),
               ],
             ),
           ),
         ),
-      );
+      ),
+    );
   }
 }
